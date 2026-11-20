@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/rg_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#1a1a1a"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_ir"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="热像"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+        <RadioButton
+            android:id="@+id/rb_visual"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="可见光"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+        <RadioButton
+            android:id="@+id/rb_pinp"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="画中画"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+        <RadioButton
+            android:id="@+id/rb_blend"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="可见光测温"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+    </RadioGroup>
+</FrameLayout>

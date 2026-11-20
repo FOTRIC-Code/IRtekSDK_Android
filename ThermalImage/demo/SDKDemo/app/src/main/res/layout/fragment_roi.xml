@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical">
+
+        <HorizontalScrollView
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="操作" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="名称" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="最高" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="最低" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="平均" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="面积" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="启用参数" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="发射率" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="反射" />
+
+                    <TextView
+                        style="@style/ROI_style_title"
+                        android:text="距离" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_infos"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_below="@id/ll_title"
+                    android:overScrollMode="never"
+                    android:paddingBottom="10dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/tv_open"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:padding="5dp"
+            android:shadowColor="@color/bottom_select_color_b2"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="展开"
+            android:textColor="@color/bottom_select_color"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_shapes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:overScrollMode="never" />
+
+</FrameLayout>

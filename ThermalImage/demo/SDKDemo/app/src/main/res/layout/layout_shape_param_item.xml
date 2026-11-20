@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/ll_properties"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="3dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_delete"
+                    style="@style/ROI_style_value"
+                    android:text="删除"
+                    android:textColor="@color/bottom_select_color" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_temp_max"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_temp_min"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_temp_average"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_mearsure"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_enable"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_emissivity"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_refl_temp"
+                    style="@style/ROI_style_value" />
+
+                <TextView
+                    android:id="@+id/tv_distance"
+                    style="@style/ROI_style_value" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+</LinearLayout>

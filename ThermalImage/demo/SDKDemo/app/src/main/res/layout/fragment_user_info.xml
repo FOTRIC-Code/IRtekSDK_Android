@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_infos"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:overScrollMode="never"
+        android:paddingBottom="10dp" />
+
+    <TextView
+        android:id="@+id/tv_add"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:padding="5dp"
+        android:shadowColor="@color/bottom_select_color_b2"
+        android:shadowDx="3"
+        android:shadowDy="3"
+        android:shadowRadius="3"
+        android:text="添加"
+        android:textColor="@color/bottom_select_color"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

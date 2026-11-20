@@ -1,0 +1,67 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+if (project.hasProperty("buildSdkAar")) {
+    apply plugin: "org.jetbrains.kotlin.android"
+    apply from: "build-aar.gradle"
+    return
+}
+
+def sdkAar = file("../../../library/aar/IRtekNetSDK.aar")
+
+if (!sdkAar.exists()) {
+    throw new GradleException(
+        "Missing SDK AAR: ${sdkAar.absolutePath}\n" +
+        "Build it first:\n" +
+        "  ./gradlew :IRtekNetSDK:publishSdkAar -PbuildSdkAar"
+    )
+}
+
+android {
+    namespace 'com.irtek.netsdk'
+    compileSdk 36
+    ndkVersion '27.0.12077973'
+
+    defaultConfig {
+        minSdk 24
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    packaging {
+        jniLibs {
+            pickFirsts += [
+                '**/libc++_shared.so',
+                '**/libirtek_netsdk.so',
+                '**/libirtek_netsdk_jni.so',
+                '**/libavcodec.so',
+                '**/libavdevice.so',
+                '**/libavfilter.so',
+                '**/libavformat.so',
+                '**/libavutil.so',
+                '**/libffmpegkit.so',
+                '**/libffmpegkit_abidetect.so',
+                '**/libswresample.so',
+                '**/libswscale.so',
+            ]
+        }
+    }
+}
+
+dependencies {
+    implementation libs.kotlinx.coroutines.android
+}
+
+apply from: "native-libs.gradle"

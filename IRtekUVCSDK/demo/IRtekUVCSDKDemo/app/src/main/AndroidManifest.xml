@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- USB 权限：UVC SDK 需要访问 USB 设备 -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <!-- 部分设备/ROM 在 USB 设备为摄像头时，需先有相机权限才会弹出 USB 授权对话框 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.UVCAndroidSDKDEMO">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.UVCAndroidSDKDEMO">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- USB 设备插入时接收广播 -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
+        
+        <!-- USB 权限广播接收器 -->
+        <receiver
+            android:name=".UsbPermissionReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.fotric.cardinal.uvc.USB_PERMISSION" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

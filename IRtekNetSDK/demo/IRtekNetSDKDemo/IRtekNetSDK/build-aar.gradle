@@ -1,0 +1,174 @@
+// SDK AAR 打包任务（由 build.gradle 在 -PbuildSdkAar 时 apply）
+
+def aarFile = file("../../../library/aar/IRtekNetSDK.aar")
+def supplementalJniRoot = file("../../../library/jni")
+def extractedJniLibsDir = layout.buildDirectory.dir("extracted-jniLibs")
+def packagedJniLibsDir = layout.buildDirectory.dir("packaged-jniLibs")
+def alignScript = rootProject.file("scripts/align_elf_16k.py")
+def publishedAar = file("../../../library/aar/IRtekNetSDK.aar")
+
+tasks.register("extractAarJni", Copy) {
+    doFirst {
+        delete extractedJniLibsDir.get().asFile
+    }
+    from(zipTree(aarFile)) {
+        include "jni/**"
+        exclude "**/libc++_shared.so"
+        eachFile { details ->
+            def segments = details.relativePath.segments
+            if (segments.length > 1 && segments[0] == "jni") {
+                details.relativePath = new org.gradle.api.file.RelativePath(
+                    true,
+                    (String[]) segments[1..-1]
+                )
+            }
+        }
+    }
+    into extractedJniLibsDir
+    includeEmptyDirs = false
+}
+
+tasks.register("alignAarJniLibs") {
+    dependsOn("extractAarJni")
+    inputs.file(aarFile)
+    outputs.dir(extractedJniLibsDir)
+
+    doLast {
+        def libs = fileTree(extractedJniLibsDir.get().asFile) {
+            include "**/libirtek_netsdk.so"
+        }.files
+        if (libs.isEmpty()) {
+            throw new GradleException("No libirtek_netsdk.so found under ${extractedJniLibsDir.get().asFile}")
+        }
+        libs.each { lib ->
+            exec {
+                commandLine "python", alignScript.absolutePath, lib.absolutePath
+            }
+        }
+    }
+}
+
+tasks.register("preparePackagedJniLibs") {
+    dependsOn("alignAarJniLibs")
+    inputs.file(aarFile)
+    if (supplementalJniRoot.exists()) {
+        inputs.dir(supplementalJniRoot)
+    }
+    outputs.dir(packagedJniLibsDir)
+
+    doLast {
+        def out = packagedJniLibsDir.get().asFile
+        project.delete(out)
+        out.mkdirs()
+
+        copy {
+            from extractedJniLibsDir
+            into out
+        }
+
+        if (supplementalJniRoot.exists()) {
+            copy {
+                from supplementalJniRoot
+                into out
+                include "**/*.so"
+            }
+        }
+    }
+}
+
+def preparedJniLibsDir = extractedJniLibsDir.get().asFile.absolutePath.replace('\\', '/')
+
+android {
+    namespace 'com.irtek.netsdk'
+    compileSdk 36
+    ndkVersion '27.0.12077973'
+
+    defaultConfig {
+        minSdk 24
+        consumerProguardFiles "consumer-rules.pro"
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++17 -fexceptions'
+                arguments "-DANDROID_STL=c++_shared",
+                        "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                        "-DJNI_LIBS_DIR=${preparedJniLibsDir}"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+            version '3.22.1'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = [packagedJniLibsDir.get().asFile]
+        }
+    }
+
+    packaging {
+        jniLibs {
+            pickFirsts += [
+                '**/libc++_shared.so',
+                '**/libirtek_netsdk.so',
+                '**/libirtek_netsdk_jni.so',
+            ]
+        }
+    }
+}
+
+dependencies {
+    implementation libs.kotlinx.coroutines.android
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("preparePackagedJniLibs")
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("configureCMake") || task.name.startsWith("buildCMake")) {
+        task.dependsOn("alignAarJniLibs")
+    }
+}
+
+tasks.register("publishSdkAar", Copy) {
+    dependsOn("assembleRelease")
+    from(layout.buildDirectory.dir("outputs/aar")) {
+        include "*-release.aar"
+        rename { "IRtekNetSDK.aar" }
+    }
+    into(publishedAar.parentFile)
+    doLast {
+        logger.lifecycle("Published SDK AAR to ${publishedAar}")
+    }
+}
+
+afterEvaluate {
+    tasks.named("assembleRelease").configure {
+        finalizedBy("publishSdkAar")
+    }
+}

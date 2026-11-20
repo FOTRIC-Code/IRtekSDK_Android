@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#1a1a1a"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_finger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="最小值："
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_height="match_parent"/>
+
+                <TextView
+                    android:id="@+id/et_temp_min"
+                    android:layout_marginStart="5dp"
+                    android:background="@null"
+                    android:textColor="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="最大值："
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_height="match_parent"/>
+
+                <TextView
+                    android:id="@+id/et_temp_max"
+                    android:layout_marginStart="5dp"
+                    android:background="@null"
+                    android:textColor="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/rg_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_auto"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="自动"
+                android:textColor="@color/white"
+                android:textSize="11sp" />
+
+            <RadioButton
+                android:id="@+id/rb_finger"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="手动"
+                android:textColor="@color/white"
+                android:textSize="11sp" />
+
+            <RadioButton
+                android:id="@+id/rb_self"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="触控"
+                android:textColor="@color/white"
+                android:textSize="11sp" />
+
+        </RadioGroup>
+    </LinearLayout>
+</FrameLayout>

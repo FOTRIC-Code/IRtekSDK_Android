@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center_vertical"
+        android:background="#1a1a1a"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="5dp">
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_close" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/iv_params"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/ic_setting_param" />
+
+
+        <ImageView
+            android:id="@+id/iv_save"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_sure" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.fotric.sdkdemo.view.ParentIRView
+            android:id="@+id/pv_irtek"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/iv_irtek"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_centerVertical="true"
+                android:scaleType="fitXY" />
+
+            <RelativeLayout
+                android:id="@+id/rl_rois"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.fotric.sdkdemo.view.ParentIRView>
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_funcs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1a1a1a"
+        android:overScrollMode="never"
+        android:padding="5dp" />
+
+</LinearLayout>

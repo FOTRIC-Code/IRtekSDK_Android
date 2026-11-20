@@ -1,0 +1,151 @@
+// Package vendor SDK + POM-declared FFmpeg native libs (16 KB aligned).
+// FFmpeg comes from IRtekNetSDK.pom (com.arthenica:ffmpeg-kit-min-gpl), not a hard-coded side dependency.
+
+def sdkAar = file("../../../library/aar/IRtekNetSDK.aar")
+def sdkPom = file("../../../library/aar/IRtekNetSDK.pom")
+def packagedJniDir = layout.buildDirectory.dir("packaged-jniLibs")
+def extractedSdkDir = layout.buildDirectory.dir("extracted-sdk")
+def sdkClassesJar = extractedSdkDir.map { it.file("sdk-classes.jar") }
+def alignScript = rootProject.file("scripts/align_elf_16k.py")
+def ndkVersion = "27.0.12077973"
+
+if (!sdkPom.exists()) {
+    throw new GradleException("Missing SDK POM: ${sdkPom.absolutePath}")
+}
+
+def pomXml = new XmlSlurper().parse(sdkPom)
+def ffmpegNode = pomXml.dependencies.dependency.find {
+    it.groupId.text() == "com.arthenica" && it.artifactId.text() == "ffmpeg-kit-min-gpl"
+}
+if (ffmpegNode == null) {
+    throw new GradleException(
+        "Vendor POM ${sdkPom.name} does not declare com.arthenica:ffmpeg-kit-min-gpl. " +
+        "Video decode requires that runtime dependency."
+    )
+}
+def ffmpegCoord = "${ffmpegNode.groupId.text()}:${ffmpegNode.artifactId.text()}:${ffmpegNode.version.text()}"
+
+configurations {
+    ffmpegKitAar
+}
+
+dependencies {
+    ffmpegKitAar ffmpegCoord
+}
+
+tasks.register("preparePackagedNativeLibs") {
+    inputs.file(sdkAar)
+    inputs.file(sdkPom)
+    inputs.files(configurations.ffmpegKitAar)
+    outputs.file(sdkClassesJar)
+    outputs.dir(packagedJniDir)
+
+    doLast {
+        if (!sdkAar.exists()) {
+            throw new GradleException("Missing SDK AAR: ${sdkAar.absolutePath}")
+        }
+        def ffmpegAar = configurations.ffmpegKitAar.files.find { it.name.endsWith(".aar") }
+        if (ffmpegAar == null) {
+            throw new GradleException("ffmpeg-kit AAR not resolved from vendor POM dependency: ${ffmpegCoord}")
+        }
+
+        def jniOut = packagedJniDir.get().asFile
+        def sdkOut = extractedSdkDir.get().asFile
+        delete jniOut
+        delete sdkOut
+        sdkOut.mkdirs()
+        jniOut.mkdirs()
+
+        copy {
+            from(zipTree(sdkAar)) {
+                include "classes.jar"
+            }
+            into sdkOut
+            rename("classes.jar", "sdk-classes.jar")
+        }
+
+        [sdkAar, ffmpegAar].each { aar ->
+            copy {
+                from(zipTree(aar)) {
+                    include "jni/**"
+                    exclude "**/libc++_shared.so"
+                    eachFile { details ->
+                        def segments = details.relativePath.segments
+                        if (segments.length > 1 && segments[0] == "jni") {
+                            details.relativePath = new org.gradle.api.file.RelativePath(
+                                true,
+                                (String[]) segments[1..-1]
+                            )
+                        }
+                    }
+                }
+                into jniOut
+            }
+        }
+
+        def sdkRoot = android.sdkDirectory
+        def ndkRoot = new File(sdkRoot, "ndk/${ndkVersion}")
+        def prebuiltRoot = new File(ndkRoot, "toolchains/llvm/prebuilt/windows-x86_64")
+        def hostTag = prebuiltRoot.exists() ? "windows-x86_64" : prebuiltRoot.parentFile.listFiles()?.find { new File(it, "sysroot").exists() }?.name
+        if (hostTag == null) {
+            throw new GradleException("Cannot locate NDK prebuilt directory under ${ndkRoot}")
+        }
+        def sysrootLib = new File(ndkRoot, "toolchains/llvm/prebuilt/${hostTag}/sysroot/usr/lib")
+
+        ["arm64-v8a", "armeabi-v7a", "x86_64"].each { abi ->
+            def triple = [
+                "arm64-v8a"   : "aarch64-linux-android",
+                "armeabi-v7a" : "arm-linux-androideabi",
+                "x86_64"      : "x86_64-linux-android",
+            ][abi]
+            def src = new File(sysrootLib, "${triple}/libc++_shared.so")
+            if (!src.exists()) {
+                logger.warn("NDK libc++_shared not found for ${abi}: ${src}")
+                return
+            }
+            def dstDir = new File(jniOut, abi)
+            dstDir.mkdirs()
+            def dst = new File(dstDir, "libc++_shared.so")
+            copy {
+                from src
+                into dstDir
+            }
+            if (abi == "arm64-v8a" || abi == "x86_64") {
+                exec {
+                    commandLine "python", alignScript.absolutePath, dst.absolutePath
+                }
+            }
+        }
+
+        fileTree(jniOut) { include "**/*.so"; exclude "**/libc++_shared.so" }.files.each { lib ->
+            def abi = lib.parentFile.name
+            if (abi == "arm64-v8a" || abi == "x86_64") {
+                exec {
+                    commandLine "python", alignScript.absolutePath, lib.absolutePath
+                }
+            }
+        }
+
+        logger.lifecycle("Packaged vendor SDK + FFmpeg (${ffmpegCoord}) into ${jniOut}")
+    }
+}
+
+android {
+    sourceSets {
+        main {
+            // Consume vendor AAR classes; do not compile local Kotlin/JNI sources in this mode.
+            java.srcDirs = []
+            jniLibs.srcDirs = [packagedJniDir.get().asFile]
+        }
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("preparePackagedNativeLibs")
+}
+
+dependencies {
+    api files(sdkClassesJar) {
+        builtBy("preparePackagedNativeLibs")
+    }
+}
